@@ -5,7 +5,7 @@ on:
       - main
     paths-ignore:
       - .gitignore
-#       - README.md
+       - README.md
       - LICENSE
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
           JEKYLL_ENV: production
         run: |
           bundle exec jekyll b -d "_site$BASE_URL"
-       - name: Test Site
+      - name: Test Site
          run: |
            bash tools/test.sh
       - name: Deploy
