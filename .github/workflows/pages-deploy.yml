@@ -5,7 +5,7 @@ on:
       - main
     paths-ignore:
       - .gitignore
-      - README.md
+#       - README.md
       - LICENSE
 
 jobs:
