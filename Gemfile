@@ -26,6 +26,11 @@ platforms :mingw, :x64_mingw, :mswin, :jruby do
   gem "tzinfo-data"
 end
 
+#Testing Phase. For tesh.sh ~ bundle exec htmlproofer
+group :test do
+  gem "html-proofer", "~> 3.18"
+end
+
 # Performance-booster for watching directories on Windows
 gem "wdm", "~> 0.1.1", :platforms => [:mingw, :x64_mingw, :mswin]
 
