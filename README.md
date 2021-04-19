@@ -1,7 +1,3 @@
----
-
----
-
 # Jekyll Theme GitHub pages
 
 [![Gem Version](https://img.shields.io/gem/v/jekyll-theme-chirpy?color=brightgreen)](https://rubygems.org/gems/jekyll-theme-chirpy)
