@@ -28,7 +28,7 @@ end
 
 #Testing Phase. For tesh.sh ~ bundle exec htmlproofer
 group :test do
-	gem 'html-proofer', '~> 3.18'
+  gem 'html-proofer', '~> 3.18'
 end
 
 # Performance-booster for watching directories on Windows
