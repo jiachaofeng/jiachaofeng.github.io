@@ -1,0 +1,473 @@
+---
+title: jdk1.6，jdk1.7，jdk1.8的区别
+date: 2020-05-28 00:00:00 +0800
+author: CharlesJia
+categories: [Java]
+tags: [Interview]
+---
+
+## jdk1.6，jdk1.7，jdk1.8的区别
+
+### 	jdk1.7新增特性
+
+1. #### switch 支持string
+
+   jdk1.6: int,short,char,byte,Enum
+   jdk1.7: **string**,int,short,char,byte,Enum
+
+2. 泛型自动判断
+
+   ArrayList al1 = new ArrayList(); // Old
+   ArrayList al2 = new ArrayList<>(); // New
+
+3. 新的整数字面表达方式 - “0b"前缀和”_"连数符
+
+   `byte b1 = 0b00100001; // New`
+   `byte b2 = 0x21; // Old`
+   `byte b3 = 33; // Old`
+   `System.err.println(b1); //33`
+   **这里有一些其它的不能在数值型字面值上用下划线的地方：**
+   1 在数字的开始或结尾
+   2 在浮点型数字的小数点前后
+   3 F或L下标的前面
+   4 该数值型字面值是字符串类型的时候
+   int a4 = 5_______2; // 有效的
+
+4. 在单个catch代码块中捕获多个异常，以及用升级版的类型检查重新抛出异常
+
+   1.6
+
+   ```java
+   catch (IOException ex) {
+       logger.error(ex);
+       throw new MyException(ex.getMessage());
+   catch (SQLException ex) {
+       logger.error(ex);
+       throw new MyException(ex.getMessage());
+   }catch (Exception ex) {
+       logger.error(ex);
+       throw new MyException(ex.getMessage());
+   }
+   ```
+
+   1.7
+
+   ```java
+   catch (IOException | SQLException | Exception ex) {
+       logger.error(ex);
+       throw new MyException(ex.getMessage());
+   ```
+
+   
+
+5. try-with-resources语句
+
+   1.7之前，须在finnally中手动关闭资源
+
+   ```java
+   /** 
+    * JDK1.7之前我们必须在finally块中手动关闭资源，否则会导致资源的泄露 
+    * 
+    */  
+   public class PreJDK7 {  
+   
+       public static String readFirstLingFromFile(String path) throws IOException {  
+           BufferedReader br = null;  
+   
+           try {  
+               br = new BufferedReader(new FileReader(path));  
+               return br.readLine();  
+           } catch (IOException e) {  
+               e.printStackTrace();  
+           } finally {//必须在这里关闭资源  
+               if (br != null)  
+                   br.close();  
+           }  
+           return null;  
+       }  
+   }
+   ```
+
+   1.7
+
+   ```java
+   /** 
+    * JDK1.7之后就可以使用try-with-resources,不需要 
+    * 我们在finally块中手动关闭资源 
+    */  
+   public class AboveJDK7 {  
+   
+       static String readFirstLineFromFile(String path) throws IOException {  
+   
+           try (BufferedReader br = new BufferedReader(new FileReader(path))) {  
+               return br.readLine();  
+           }  
+       }  
+   }
+   ```
+
+   
+
+### 	jdk1.8新增特性
+
+1. default关键字
+
+   在1.8以前接口内的方法只能是抽象方法，在1.8可以新增default修饰的方法，且实现类不能继承该方法。
+   优势：若需要新增一个统一的方法，以前需要在每一个实现类中继承，现在只需要在接口类增加一个defualt方法即可。
+
+   
+
+   接口类
+
+   ```java
+   public interface interFaceClass {
+       void myFuncation();
+       default void mydefualtFuncation(){
+           System.err.println("this is a defualt funcation");
+       };
+   }
+   ```
+
+   实现类
+
+   ```java
+   public class implementClass implements interFaceClass {
+   	@Override
+   	public void myFuncation() {
+   		// TODO Auto-generated method stub
+   	}
+   }
+   ```
+
+   测试类
+
+   ```java
+   public static void main(String[] args) {
+   		interFaceClass test = new implementClass();
+   		test.mydefualtFuncation();   //this is a defualt funcation
+   	}
+   ```
+
+   
+
+2. 时间类 localdate
+
+   jdk1.8提供了新的API解决之前版本关于获取时间上繁琐及SimpleDateFormat的**线程不安全**.总体来看新的API提供了许多便捷的方法获取想要的时间。
+   localdate
+   localtime
+   localdatetime
+   zonedatetime
+
+   1.7
+
+   ```java
+   Date date =  new Date();
+   SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd   HH:mm:ss");
+   
+   //获取当前时间
+   date.getDate();// 30
+   System.out.println(date);//  Sun Sep 30 09:51:04 CST 2018
+   
+   //按格式获取当前时间
+   System.out.println(df.format(date)); // 2018-09-30 09:51:04
+   
+   //获取前一天时间
+   Calendar cal=Calendar.getInstance();
+   cal.add(Calendar.DATE,  -1);
+   Date yesterday = cal.getTime();
+   System.out.println(df.format(yesterday )); // 2018-09-29 09:51:04
+   		
+   //获取指定时间
+   String dateOfBirthString= "2017-10-11";
+   Date dateOfBirth = new SimpleDateFormat("yy-MM-dd").parse(dateOfBirthString);
+   System.out.println(df.format(dateOfBirth )); // 2017/10/11 00:00:00
+   
+   //比较两个时间是否相同
+   boolean flag =  dateOfBirth.equals(dateTody);
+   System.out.println("flag:  "+flag);// flag；  false
+   
+   //将日期转化为字符串
+   String dateString1 = dateTody.toString;
+   String dateString2 = df.format(dateTody);
+   ```
+
+   1.8
+
+   ```java
+   // 获取当前时间
+   LocalDate dateTody = LocalDate.now();
+   LocalTime timeNow=LocalTime.now();
+   System.out.println(dateTody+" "+  timeNow);// 2018-09-30  10:36:45.260
+   int year =  dateToday.getYear();
+   int month = dateToday.getMonthValue();	
+   int day =   dateToday.getDayOfMonth();
+   
+   // 按格式获取当前时间
+   DateTimeFormatter formatters = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+   String text = dateToday.format(formatters);
+   System.err.println(text);//2018年09月30日
+   
+   //获取前一天时间
+   LocalDate yestoday = dateToday.minusDays(1);
+   System.err.println(yestoday );//2018-09-29
+   	
+   //获取指定时间
+   LocalDate dateOfBirth = LocalDate.of(2017, 10, 11);
+   System.err.println(dateOfBirth );//2017-10-11
+   
+   //比较两个时间是否相同
+   Boolean flag =  dateToday.equals(dateOfBirth);
+   
+   //比价两个时间的差
+   long dy=(   dateToday.toEpochDay() - dateOfBirth.toEpochDay() );
+   System.err.println("相差："+dy);//相差：354
+   	
+   //将日期转化为字符串
+   dateToday.toString();
+   
+   
+   //比较时用的方法：
+   //一年以后
+   LocalDate lastYear = dateToday.plus(1,ChronoUnit.YEARS);
+   System.err.println(lastYear);//2019-09-30
+   
+   // 取本月第1天：		
+   LocalDate firstDayOfThisMonth1=dateToday.withDayOfMonth(1);
+   LocalDate firstDayOfThisMonth = dateToday.with(TemporalAdjusters.firstDayOfMonth()); // 2018-04-01		
+   // 取本月第2天：		
+   LocalDate secondDayOfThisMonth = dateToday.withDayOfMonth(2); // 2018-04-02		
+   // 取本月最后一天，再也不用计算是28，29，30还是31：		
+   LocalDate lastDayOfThisMonth = dateToday.with(TemporalAdjusters.lastDayOfMonth()); // 2018-04-30		
+   // 取下一天：		
+   LocalDate firstDayOfNextMonth = lastDayOfThisMonth.plusDays(1); // 变成了2018-05-01		
+   // 取2017年1月第一个周一：		
+   LocalDate firstMondayOf2017 = LocalDate.parse("2017-01-01").with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY)); // 2017-01-02 
+   ```
+
+   
+
+3. **lamdba 表达式**
+
+   Lambda表达式”是一个匿名函数，是jdk1.8重要的新特性
+   首先了解下内部类的使用和优点：内部类可以访问外部类，但只有外围的外部类才能访问该内部类，内部类可以使得该类实现多继承，
+   匿名内部类是唯一一种没有构造器的类，且不能有静态变量
+   **这是一个内部类调用**
+   创建静态内部类对象的一般形式为： 外部类类名.内部类类名 xxx = new 外部类类名.内部类类名()
+   创建成员内部类对象的一般形式为： 外部类类名.内部类类名 xxx = 外部类对象名.new 内部类类名()
+
+   ```java
+   public class outerClass {
+   	int a=1;	
+   	class innerClass{
+   		int a=2;
+   		void Printable(){
+   			int a =3;
+   			System.err.println(a);
+   			System.err.println(this.a);
+   			System.err.println(outerClass.this.a);
+   		}
+   	}
+   	
+   	public static void main(String[] args) {
+   		outerClass out1 = new outerClass();
+   		outerClass.innerClass inner2 = out1.new innerClass();
+   		inner2.Printable();
+   	}
+   }
+   ```
+
+   [匿名内部类](https://blog.csdn.net/u011983779/article/details/53293412)
+
+   ```java
+   public abstract class Person {
+   	 abstract void f();	
+   }
+   ```
+
+   Person 是一个抽象类是不能被实例化的，但是我们通过匿名内部类就可以实现对其的向下转型
+
+   ```java
+   public class Test {
+   	public static void main(String[] args) {
+   		Person p = new Person() {
+   			@Override
+   			void f() {
+   				// TODO Auto-generated method stub
+   				System.err.println("我是匿名内部类");
+   			}
+           };
+           p.f();
+   	}
+   }
+   ```
+
+   上面等效于
+
+   ```java
+   Person person = new child();
+   person.f(); //child是Person 子类
+   ```
+
+   **使用lamdba实现上面的匿名内部类（Person 必须是接口）**
+
+   ```java
+    Person p2 =() -> System.err.println("我是匿lambda");
+    p2.f();
+   ```
+
+   **使用lamdba实现对数组的遍历**
+
+   ```java
+   List<String> list = Arrays.asList("我是1","我是2");
+           for ( String a : list) {
+   			System.err.println(a);
+   		}      
+   list.forEach( a -> System.err.println("我是lambda"+a) );// 一句话搞定
+   list.forEach(System.out :: println);  //println无法写参数
+   ```
+
+   看了上面的例子我们再来解释下lambda表达式，由编译器推断并帮你转换包装为常规的代码,因此你可以使用更少的代码来实现同样的功能。
+
+   ------
+
+   **基本语法**
+
+   ```
+   (parameters) -> expression
+   或
+   (parameters) ->{ statements; }
+   ```
+
+   **变量作用域**
+
+   ```java
+   String ab="我是变量";		
+   Person p = new Person() {
+       @Override
+       public void f() {
+           // TODO Auto-generated method stub
+           System.err.println("我是匿名内部类"+ab);    //匿名内部类一样会报错
+       }
+   };
+   p.f();
+   
+   Person p2 =() -> System.err.println("我是匿lambda"+ab);
+   p2.f();
+   ab="123131231";  // 当ab变量不赋值时上述方法均不会报错，但是改变值之后就都报错了，需要将ab设置为final类型防止出现编译错误
+   ```
+
+   **对数组排序**
+
+   lambda 改造前
+
+   ```java
+   String[] players = {"Rafael Nadal", "Novak Djokovic",   
+       "Stanislas Wawrinka", "David Ferrer",  
+       "Roger Federer", "Andy Murray",  
+       "Tomas Berdych", "Juan Martin Del Potro",  
+       "Richard Gasquet", "John Isner"};  
+      
+   // 1.1 使用匿名内部类根据 name 排序 players  
+   Arrays.sort(players, new Comparator<String>() {  
+       @Override  
+       public int compare(String s1, String s2) {  
+           return (s1.compareTo(s2));  
+       }  
+   });  
+   ```
+
+   lambda 改造后
+
+   ```java
+   Arrays.sort(players,(s1,s2)->s1.compareTo(s2));//一句话搞定，注意lambda针对的是匿名内部类
+   ```
+
+   
+
+4. 函数式接口
+
+   @FunctionalInterface
+   java 8提供 @FunctionalInterface作为注解,这个注解是非必须的，只要接口符合函数式接口的标准（即只包含一个方法的接口），虚拟机会自动判断， 但 最好在接口上使用注解@FunctionalInterface进行声明，以免团队的其他人员错误地往接口中添加新的方法。
+
+5. Stream() 流
+
+   流是Java API的新成员，它允许我们以声明性方式处理数据集合（通过查询语句来表达，而不是临时编写一个实现）。就现在来说，我们可以把它们看成遍历数据集的高级迭代器。此外，流还可以透明地并行处理，也就是说我们不用写多线程代码了。
+
+   　　Stream 不是集合元素，它不是数据结构并不保存数据，它是有关算法和计算的，它更像一个高级版本的 Iterator。原始版本的 Iterator，用户只能显式地一个一个遍历元素并对其执行某些操作；高级版本的 Stream，用户只要给出需要对其包含的元素执行什么操作，比如 “过滤掉长度大于 10 的字符串”、“获取每个字符串的首字母”等，Stream 会隐式地在内部进行遍历，做出相应的数据转换。
+
+   　　Stream 就如同一个迭代器（Iterator），单向，不可往复，数据只能遍历一次，遍历过一次后即用尽了，就好比流水从面前流过，一去不复返。而和迭代器又不同的是，Stream 可以并行化操作，迭代器只能命令式地、串行化操作。顾名思义，当使用串行方式去遍历时，每个 item 读完后再读下一个 item。而使用并行去遍历时，数据会被分成多个段，其中每一个都在不同的线程中处理，然后将结果一起输出。Stream 的并行操作依赖于 Java7 中引入的 Fork/Join 框架（JSR166y）来拆分任务和加速处理过程。
+
+   　　流的操作类型分为两种：
+
+   - Intermediate：一个流可以后面跟随零个或多个 intermediate 操作。其目的主要是打开流，做出某种程度的数据映射/过滤，然后返回一个新的流，交给下一个操作使用。这类操作都是惰性化的（lazy），就是说，仅仅调用到这类方法，并没有真正开始流的遍历。
+   - Terminal：一个流只能有一个 terminal 操作，当这个操作执行后，流就被使用“光”了，无法再被操作。所以这必定是流的最后一个操作。Terminal 操作的执行，才会真正开始流的遍历，并且会生成一个结果，或者一个 side effect。
+
+     在对于一个 Stream 进行多次转换操作 (Intermediate 操作)，每次都对 Stream 的每个元素进行转换，而且是执行多次，这样时间复杂度就是 N（转换次数）个 for 循环里把所有操作都做掉的总和吗？其实不是这样的，转换操作都是 lazy 的，多个转换操作只会在 Terminal 操作的时候融合起来，一次循环完成。我们可以这样简单的理解，Stream 里有个操作函数的集合，每次转换操作就是把转换函数放入这个集合中，在 Terminal 操作的时候循环 Stream 对应的集合，然后对每个元素执行所有的函数。
+
+   
+
+   排序
+
+   ```java
+   String[] players = {"a", "e", "d", "c"};     	   
+   // 使用匿名内部类根据 name 排序 players  
+   Arrays.sort(players, new Comparator<String>() {  
+       @Override
+       public int compare(String s1, String s2) {
+           // TODO Auto-generated method stub
+           return (s1.compareTo(s2));  
+       }  
+   });  
+   for (String string : players) {
+       System.err.println(string);
+   }
+   //Lamdba 表达式排序    	
+   Arrays.sort(players,(s1,s2)->s1.compareTo(s2));
+   ```
+
+   Stream的构造
+
+   ```j'a
+   // 1. Individual values
+   Stream stream = Stream.of("a", "b", "c");
+   // 2. Arrays
+   String [] strArray = new String[] {"a", "b", "c"};
+   stream = Stream.of(strArray);
+   stream = Arrays.stream(strArray);
+   // 3. Collections
+   List<String> list = Arrays.asList(strArray);
+   stream = list.stream();
+   ```
+
+   
+
+   Stream使用
+
+   ```
+   List <Integer> streamtest = Arrays.asList(1,2,50,30);
+   
+   //对元素操作
+   List<Integer > getList = streamtest.stream().map(a->a*2).collect(Collectors.toList());
+   getList.forEach(System.out::println);
+   
+   //排序
+   List<Integer> getsortList = streamtest.stream().sorted((a1,a2) ->a1.compareTo(a2)).collect(Collectors.toList());
+   getsortList.forEach(System.out::println);	
+   
+   //过滤      
+   List<Integer> getFilterList = streamtest.stream().filter(s-> (s>=2)).collect(Collectors.toList());
+   getFilterList.forEach(System.out::println);	
+   
+   //生成数组
+   Integer[] atest = streamtest.stream().toArray(Integer[]::new); 
+        
+   //对元素叠加计算
+   int value = streamtest.stream().reduce(0, (acc,item)->acc+item).intValue();
+   System.err.println(value);
+   ```
+
+   
+
+6. HashMap
+
+   HashMap, Hash Table, ConcurrentHashMap 的区别
